@@ -4,6 +4,7 @@ import org.testng.annotations.Test;
 
 import io.cucumber.java.en.And;
 import io.cucumber.java.en.Given;
+import io.cucumber.java.en.Then;
 import io.restassured.*;
 import io.restassured.config.RedirectConfig;
 import static org.hamcrest.CoreMatchers.*;
@@ -14,7 +15,9 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -31,6 +34,10 @@ import io.restassured.module.mockmvc.RestAssuredMockMvc.*;
 import static io.restassured.module.jsv.JsonSchemaValidator.matchesJsonSchemaInClasspath;
 import static org.hamcrest.MatcherAssert.assertThat;
 
+import org.apache.jmeter.engine.StandardJMeterEngine;
+import org.apache.jmeter.save.SaveService;
+import org.apache.jmeter.util.JMeterUtils;
+import org.apache.jorphan.collections.HashTree;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.DataFormatter;
 import org.apache.poi.ss.usermodel.Row;
@@ -41,6 +48,7 @@ public class rhrread {
 	
 	RedirectConfig config = new RedirectConfig();
 	Response response;
+	String resultFileName;
 	
 	@Given("I go to {string} with {string}")
 	public void requestApi(String api, String parameterSet) throws Exception {
@@ -89,6 +97,7 @@ public class rhrread {
 		String url = getUrl(api);
 		//get parameters
 		Map<String, String> parameters = getPara(parameterSet);
+		//produce long url
 		while(url.length()<10000) {
 			url = url+url;
 		}
@@ -133,6 +142,10 @@ public class rhrread {
 			if(reponseHtml.indexOf(content)<0)
 				throw new Exception(content + "is not found on the page");
 			break;
+		case "Request-URI Too Long":
+			if(reponseHtml.indexOf(content)<0)
+				throw new Exception(content + "is not found on the page");
+			break;
 		}
 	}
 	
@@ -149,31 +162,31 @@ public class rhrread {
 		}
 	}
 	
-	/*@Given("I perform load test")
-	public void loadTest() throws Exception {
-		// JMeter Engine
-        StandardJMeterEngine jmeter = new StandardJMeterEngine();
-
-
-        // Initialize Properties, logging, locale, etc.
-        JMeterUtils.loadJMeterProperties("C:\\Users\\ching\\Downloads\\apache-jmeter-5.2.1\\apache-jmeter-5.2.1\\bin/jmeter.properties");
-        JMeterUtils.setJMeterHome("C:\\Users\\ching\\Downloads\\apache-jmeter-5.2.1\\apache-jmeter-5.2.1");
-        JMeterUtils.initLogging();// you can comment this line out to see extra log messages of i.e. DEBUG level
-        JMeterUtils.initLocale();
-
-        // Initialize JMeter SaveService
-        SaveService.loadProperties();
-
-        // Load existing .jmx Test Plan
-        FileInputStream in = new FileInputStream("C:\\Users\\ching\\Downloads\\apache-jmeter-5.2.1\\apache-jmeter-5.2.1\\google.jmx");
-        HashTree testPlanTree = SaveService.loadTree(in);
-        in.close();
-
-        // Run JMeter Test
-        jmeter.configure(testPlanTree);
-        jmeter.run();
-
-	}*/
+	@Given("I carry out performance test")
+	public void performanceTest() throws Exception {
+		//Jmeter file location
+		String JmeterBinLocation = System.getProperty("user.dir") + "\\src\\test\\resources\\apache-jmeter-5.4.1\\bin\\";
+		//output file location
+		File theDir = new File(JmeterBinLocation + "\\output\\" + new SimpleDateFormat("yyyyMMdd").format(new Date()));
+		if (!theDir.exists()){
+		    theDir.mkdirs();
+		}
+		//output file name
+	    resultFileName = theDir.getPath() +"\\" + new SimpleDateFormat("yyyyMMddHHmm").format(new Date()) +"_weathersult.jtl";
+		//run Jmeter
+		Runtime rt = Runtime.getRuntime();
+		Process pr = rt.exec(JmeterBinLocation + "jmeter.bat -n -t " 
+		+ JmeterBinLocation + "weather.jmx -l " 
+				+ resultFileName);
+	}
+	
+	@Then("I verify result file is generated")
+	public void verifyJmeterResultCreated() throws Exception {
+		File result = new File(resultFileName);
+		if (!result.exists() && result.isDirectory()){
+			throw new Exception("Result file is not generated");
+		}
+	}
 	
 	public Map<String, String> getPara(String parameterSet) throws IOException {
 		File file = new File(Const.dataFile);   //creating a new file instance  
@@ -182,12 +195,16 @@ public class rhrread {
 		XSSFWorkbook wb = new XSSFWorkbook(fis);   
 		XSSFSheet sheet = wb.getSheetAt(0);     //creating a Sheet object to retrieve object  
 		DataFormatter df = new DataFormatter();
+		
+		//paramMap is each parameter sets
 	    Map<String, String> paramMap = new LinkedHashMap<>();
+	    //allParamMap contains all the parameters set and key is the parameter set name
 	    Map<String,Map<String,String>> allParamMap = new LinkedHashMap<>();
 	    Row row = sheet.getRow(0);
 
 	    ArrayList<String> headersName = new ArrayList<String>();
 
+	    //get parameter name i.e. dataType & lang
 	    for (int j = 0; j <= row.getPhysicalNumberOfCells(); j++) {
 	        row.getCell(j);
 	        if ((df.formatCellValue(row.getCell(j)).isEmpty())) {
@@ -196,14 +213,16 @@ public class rhrread {
 	            headersName.add(df.formatCellValue(row.getCell(j)));
 	        }
 	    }
-
+	    //loop to get parameter sets
 	    OUTER: for (Row myrow : sheet) {
 	    	String paramName="";
 	        for (int i = 0; i < myrow.getLastCellNum(); i++) {
+	        	//skip first row, only contain column name
 	            if (myrow.getRowNum() == 0) {
 	                continue OUTER;
 	            }  
 	            String value = df.formatCellValue(myrow.getCell(i));
+	            //continue loop when the data = paramName
 	            if (headersName.get(i).equalsIgnoreCase("paramName")) {
 	            	paramName = value;
 	                continue;
@@ -212,6 +231,7 @@ public class rhrread {
 	        }
 	        allParamMap.put(paramName, new LinkedHashMap<>(paramMap));
 	    }
+	    //return parameters
 	    return allParamMap.get(parameterSet);
 	}
 	

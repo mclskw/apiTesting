@@ -72,6 +72,7 @@ Feature: To test the api of current weather
     Given I go to "<api>" with "<parameters>" with long url
     And I check status code is 414
     And I check response type is "html"
+    And I check "Request-URI Too Long" is shown
     And I measure response time within 500 milliseconds
 
     Examples: 
@@ -93,10 +94,7 @@ Feature: To test the api of current weather
       | rhrread      | rhrread_dataType_null         |
       
       @rhrread_08
-  Scenario Outline: load test
-    Given I perform load test
-
-    Examples: 
-      | api          | parameters     |
-      | rhrread      | rhrread_normal |
+  Scenario: performance test
+    Given I carry out performance test
+		Then I verify result file is generated
       
