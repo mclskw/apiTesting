@@ -1,0 +1,269 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "type": "object",
+  "properties": {
+    "lightning": {
+      "type": "object",
+      "properties": {
+        "data": {
+          "type": "array",
+          "items": [
+            {
+              "type": "object",
+              "properties": {
+                "place": {
+                  "type": "string"
+                },
+                "occur": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "place",
+                "occur"
+              ]
+            }
+          ]
+        },
+        "startTime": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "endTime": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "data",
+        "startTime",
+        "endTime"
+      ],
+      "minItems": 1
+    },
+    "rainfall": {
+      "type": "object",
+      "properties": {
+        "data": {
+          "type": "array",
+          "items": [
+            {
+              "type": "object",
+              "properties": {
+                "unit": {
+                  "type": "string"
+                },
+                "place": {
+                  "type": "string"
+                },
+                "max": {
+                  "type": "integer",
+                  "minItems": 1
+                },
+                "min": {
+                  "type": "integer",
+                  "minItems": 1
+                },
+                "main": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "unit",
+                "place",
+                "main"
+              ]
+            }
+          ]
+        },
+        "startTime": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "endTime": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "data",
+        "startTime",
+        "endTime"
+      ]
+    },
+    "icon": {
+      "type": "array",
+      "items": [
+        {
+          "type": "integer"
+        }
+      ]
+    },
+    "iconUpdateTime": {
+      "type": "string"
+    },
+    "specialWxTips": {
+      "type": "array",
+      "items": [
+        {
+          "type": "string"
+        }
+      ],
+      "minItems": 1
+    },
+    "uvindex": {
+      "type": "object",
+      "properties": {
+        "data": {
+          "type": "array",
+          "items": [
+            {
+              "type": "object",
+              "properties": {
+                "place": {
+                  "type": "string"
+                },
+                "value": {
+                  "type": "number"
+                },
+                "desc": {
+                  "type": "string"
+                },
+                "message": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "place",
+                "value",
+                "desc"
+              ]
+            }
+          ]
+        },
+        "recordDesc": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "data",
+        "recordDesc"
+      ]
+    },
+    "updateTime": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "temperature": {
+      "type": "object",
+      "properties": {
+        "data": {
+          "type": "array",
+          "items": [
+            {
+              "type": "object",
+              "properties": {
+                "place": {
+                  "type": "string"
+                },
+                "value": {
+                  "type": "integer"
+                },
+                "unit": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "place",
+                "value",
+                "unit"
+              ]
+            }
+          ]
+        },
+        "recordTime": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "data",
+        "recordTime"
+      ]
+    },
+    "warningMessage": {
+      "type": "string"
+    },
+    "rainstormReminder": {
+      "type": "string",
+      "maxItems": 1
+    },
+    "mintempFrom00To09": {
+      "type": "string",
+      "minItems": 1
+    },
+    "rainfallFrom00To12": {
+      "type": "string",
+      "minItems": 1
+    },
+    "rainfallLastMonth": {
+      "type": "string",
+      "minItems": 1
+    },
+    "rainfallJanuaryToLastMonth": {
+      "type": "string",
+      "minItems": 1
+    },
+    "tcmessage": {
+      "type": "string",
+      "maxItems": 1
+    },
+    "humidity": {
+      "type": "object",
+      "properties": {
+        "recordTime": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "data": {
+          "type": "array",
+          "items": [
+            {
+              "type": "object",
+              "properties": {
+                "unit": {
+                  "type": "string"
+                },
+                "value": {
+                  "type": "integer"
+                },
+                "place": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "unit",
+                "value",
+                "place"
+              ]
+            }
+          ]
+        }
+      },
+      "required": [
+        "recordTime",
+        "data"
+      ]
+    }
+  },
+  "required": [
+    "rainfall",
+    "icon",
+    "iconUpdateTime",
+    "uvindex",
+    "updateTime",
+    "temperature",
+    "warningMessage",
+    "humidity"
+  ]
+}

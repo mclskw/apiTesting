@@ -1,0 +1,2 @@
+2021/05/10 18:32:39 INFO  - jmeter.util.JMeterUtils: Setting Locale to zh_HK 
+2021/05/10 18:32:39 ERROR - jmeter.util.JMeterUtils: Could not find resources for 'zh_HK' 
